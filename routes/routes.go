@@ -21,12 +21,12 @@ func RegisterRoutes(router *mux.Router) {
 	api := router.PathPrefix("/api").Subrouter()
 
 	// Categories endpoints
-	api.HandleFunc("/categories", handlers.GetCategories).Methods("GET")
+	api.HandleFunc("/categories", handlers.GetCategories).Methods("GET", "OPTIONS")
 
 	// Products endpoints
-	api.HandleFunc("/products", handlers.GetProducts).Methods("GET")
-	api.HandleFunc("/products/{id}", handlers.GetProductByID).Methods("GET")
-	api.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT")
+	api.HandleFunc("/products", handlers.GetProducts).Methods("GET", "OPTIONS")
+	api.HandleFunc("/products/{id}", handlers.GetProductByID).Methods("GET", "OPTIONS")
+	api.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT", "OPTIONS")
 
 	// Health check
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
