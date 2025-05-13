@@ -91,6 +91,7 @@ The server will start on http://localhost:8080 by default (or the port specified
 | GET    | `/api/products`      | Get all products  | `page`, `page_size`, `category_id`, etc. |
 | GET    | `/api/products/{id}` | Get product by ID | -                                        |
 | PUT    | `/api/products/{id}` | Update product    | -                                        |
+| POST   | `/api/products`      | Create product    | -                                        |
 
 - 📄 `page`: Page number (default: 1)
 - 🔢 `page_size`: Items per page (default: 10)
@@ -119,31 +120,6 @@ curl -X GET "http://localhost:8080/api/products?page=1&page_size=5"
 curl -X GET "http://localhost:8080/api/products?category_id=2"
 curl -X GET "http://localhost:8080/api/products?_sort=name&_order=asc"
 curl -X GET http://localhost:8080/api/products/1
-curl -X PUT http://localhost:8080/api/products/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "id": "1",
-    "name": "iPhone 13 Pro",
-    "category_id": "2",
-    "category_group": "1",
-    "attributes": [
-      {
-        "code": "price",
-        "value": 999,
-        "type": "number"
-      },
-      {
-        "code": "color",
-        "value": "Gold",
-        "type": "text"
-      },
-      {
-        "code": "in_stock",
-        "value": true,
-        "type": "boolean"
-      }
-    ]
-  }'
 ```
 
 ## 💻 Development
