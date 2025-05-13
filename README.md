@@ -1,6 +1,6 @@
 # 🚀 Go MongoDB API Backend
 
-## 📋 Requirements
+## 💻 Requirements
 
 - ✅ Go 1.18+ (1.24.0 recommended)
 - 🍃 MongoDB 4.4+
@@ -79,11 +79,9 @@ The server will start on http://localhost:8080 by default (or the port specified
 
 ### 📊 Categories
 
-```markdown
 | Method | Endpoint          | Description        |
 | ------ | ----------------- | ------------------ |
 | GET    | `/api/categories` | Get all categories |
-```
 
 ### 🛒 Products
 
@@ -150,6 +148,4 @@ go build -o go-backend main.go
 
 - This is deployed in Render.com and the URL is
 
-```bash
 https://go-backend-s2eg.onrender.com/api/health
-```
