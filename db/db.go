@@ -235,14 +235,14 @@ func loadSampleData() (*SampleData, error) {
     {
       "id": "1",
       "email": "admin@gmail.com",
-      "password": "admin123",
+      "password": "lucytech@123",
       "name": "Admin User",
       "role": "admin"
     },
     {
       "id": "2",
       "email": "user@gmail.com",
-      "password": "user123",
+      "password": "lucytech@123",
       "name": "Regular User",
       "role": "user"
     }
@@ -301,11 +301,37 @@ func loadSampleData() (*SampleData, error) {
   ],
   "products": [
     {
-      "attributes": [],
-      "category_group": "1",
-      "category_id": "2",
       "id": "1",
-      "name": "iPhone 13"
+      "name": "iPhone 13",
+      "category_id": "2",
+      "category_group": "1",
+      "attributes": [
+        {
+          "code": "price",
+          "value": 4,
+          "type": "number"
+        },
+        {
+          "code": "color",
+          "value": "Black",
+          "type": "text"
+        },
+        {
+          "code": "in_stock",
+          "value": true,
+          "type": "boolean"
+        },
+        {
+          "code": "tags",
+          "value": [
+            "smartphone",
+            "apple",
+            "5G",
+            "test"
+          ],
+          "type": "tags"
+        }
+      ]
     },
     {
       "id": "2",
