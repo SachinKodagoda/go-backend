@@ -25,6 +25,7 @@ func RegisterRoutes(router *mux.Router) {
 
 	// Products endpoints
 	api.HandleFunc("/products", handlers.GetProducts).Methods("GET", "OPTIONS")
+	api.HandleFunc("/products", handlers.CreateProduct).Methods("POST", "OPTIONS")
 	api.HandleFunc("/products/{id}", handlers.GetProductByID).Methods("GET", "OPTIONS")
 	api.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT", "OPTIONS")
 

@@ -1,5 +1,7 @@
 package models
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 // Category represents a product category
 type Category struct {
 	ID       string  `json:"id" bson:"id"`
@@ -16,11 +18,11 @@ type Attribute struct {
 
 // Product represents a product
 type Product struct {
-	ID            string      `json:"id" bson:"id"`
-	Name          string      `json:"name" bson:"name"`
-	CategoryID    string      `json:"category_id" bson:"category_id"`
-	CategoryGroup string      `json:"category_group" bson:"category_group"`
-	Attributes    []Attribute `json:"attributes" bson:"attributes"`
+	ID            primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name          string             `json:"name" bson:"name"`
+	CategoryID    string             `json:"category_id" bson:"category_id"`
+	CategoryGroup string             `json:"category_group" bson:"category_group"`
+	Attributes    []Attribute        `json:"attributes" bson:"attributes"`
 }
 
 // PaginationParams represents parameters for pagination and filtering

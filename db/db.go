@@ -101,17 +101,17 @@ func InitializeDatabase() error {
 		return err
 	}
 
-	productsCount, err := GetProductsCollection().CountDocuments(ctx, bson.M{})
-	if err != nil {
-		return err
-	}
+	// productsCount, err := GetProductsCollection().CountDocuments(ctx, bson.M{})
+	// if err != nil {
+	// 	return err
+	// }
 
 	usersCount, err := GetUsersCollection().CountDocuments(ctx, bson.M{})
 	if err != nil {
 		return err
 	}
 
-	if categoriesCount > 0 && productsCount > 0 && usersCount > 0 {
+	if categoriesCount > 0 && usersCount > 0 {
 		log.Println("Database already initialized")
 		return nil
 	}
@@ -137,18 +137,18 @@ func InitializeDatabase() error {
 	}
 
 	// Insert products
-	if productsCount == 0 && len(sampleData.Products) > 0 {
-		var productsInterface []interface{}
-		for _, product := range sampleData.Products {
-			productsInterface = append(productsInterface, product)
-		}
+	// if productsCount == 0 && len(sampleData.Products) > 0 {
+	// 	var productsInterface []interface{}
+	// 	for _, product := range sampleData.Products {
+	// 		productsInterface = append(productsInterface, product)
+	// 	}
 
-		_, err = GetProductsCollection().InsertMany(ctx, productsInterface)
-		if err != nil {
-			return err
-		}
-		log.Println("Products initialized successfully")
-	}
+	// 	_, err = GetProductsCollection().InsertMany(ctx, productsInterface)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	log.Println("Products initialized successfully")
+	// }
 
 	// Insert users
 	if usersCount == 0 && len(sampleData.Users) > 0 {
@@ -185,12 +185,6 @@ func createIndexes() error {
 
 	// Create index on products
 	_, err = GetProductsCollection().Indexes().CreateMany(ctx, []mongo.IndexModel{
-		{
-			Keys: bson.D{
-				{Key: "id", Value: 1},
-			},
-			Options: options.Index().SetUnique(true),
-		},
 		{
 			Keys: bson.D{
 				{Key: "category_id", Value: 1},
@@ -300,358 +294,7 @@ func loadSampleData() (*SampleData, error) {
     }
   ],
   "products": [
-    {
-      "id": "1",
-      "name": "iPhone 13",
-      "category_id": "2",
-      "category_group": "1",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 4,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Black",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "tags",
-          "value": [
-            "smartphone",
-            "apple",
-            "5G",
-            "test"
-          ],
-          "type": "tags"
-        }
-      ]
-    },
-    {
-      "id": "2",
-      "name": "Samsung Galaxy S21",
-      "category_id": "2",
-      "category_group": "1",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 899,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "White",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "tags",
-          "value": [
-            "smartphone",
-            "samsung",
-            "5G"
-          ],
-          "type": "tags"
-        }
-      ]
-    },
-    {
-      "id": "3",
-      "name": "MacBook Pro",
-      "category_id": "3",
-      "category_group": "1",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 1999,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Silver",
-          "type": "text"
-        },
-        {
-          "code": "specs_url",
-          "value": "https://www.apple.com/macbook-pro/specs/",
-          "type": "url"
-        },
-        {
-          "code": "in_stock",
-          "value": false,
-          "type": "boolean"
-        }
-      ]
-    },
-    {
-      "id": "4",
-      "name": "Dell XPS 13",
-      "category_id": "3",
-      "category_group": "1",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 1299,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Black",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        }
-      ]
-    },
-    {
-      "id": "5",
-      "name": "Men's T-Shirt",
-      "category_id": "5",
-      "category_group": "4",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 35,
-          "type": "number"
-        },
-        {
-          "code": "sizes",
-          "value": [
-            "S",
-            "M",
-            "L",
-            "XL"
-          ],
-          "type": "tags"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        }
-      ]
-    },
-    {
-      "id": "6",
-      "name": "Women's Jeans",
-      "category_id": "6",
-      "category_group": "4",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 49.99,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Blue",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        }
-      ]
-    },
-    {
-      "id": "7",
-      "name": "Coffee Maker",
-      "category_id": "8",
-      "category_group": "7",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 79.95,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Stainless Steel",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "tags",
-          "value": [
-            "kitchen",
-            "appliance",
-            "brewing"
-          ],
-          "type": "tags"
-        }
-      ]
-    },
-    {
-      "id": "8",
-      "name": "Microwave Oven",
-      "category_id": "8",
-      "category_group": "7",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 149.99,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Black",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "wattage",
-          "value": 1100,
-          "type": "number"
-        }
-      ]
-    },
-    {
-      "id": "9",
-      "name": "Sofa Sectional",
-      "category_id": "9",
-      "category_group": "7",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 1299.99,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Gray",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": false,
-          "type": "boolean"
-        },
-        {
-          "code": "dimensions",
-          "value": "112\" x 84\" x 38\"",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "id": "10",
-      "name": "The Great Gatsby",
-      "category_id": "10",
-      "category_group": "10",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 14.99,
-          "type": "number"
-        },
-        {
-          "code": "author",
-          "value": "F. Scott Fitzgerald",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "formats",
-          "value": [
-            "paperback",
-            "hardcover",
-            "ebook"
-          ],
-          "type": "tags"
-        }
-      ]
-    },
-    {
-      "id": "11",
-      "name": "Wireless Earbuds",
-      "category_id": "1",
-      "category_group": "1",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 149.99,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "White",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "battery_life",
-          "value": "6 hours",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "id": "12",
-      "name": "Women's Sweater",
-      "category_id": "6",
-      "category_group": "4",
-      "attributes": [
-        {
-          "code": "price",
-          "value": 45.5,
-          "type": "number"
-        },
-        {
-          "code": "color",
-          "value": "Red",
-          "type": "text"
-        },
-        {
-          "code": "in_stock",
-          "value": true,
-          "type": "boolean"
-        },
-        {
-          "code": "sizes",
-          "value": [
-            "S",
-            "M",
-            "L"
-          ],
-          "type": "tags"
-        },
-        {
-          "code": "material",
-          "value": "Cotton blend",
-          "type": "text"
-        }
-      ]
-    }
+
   ]
 }`
 

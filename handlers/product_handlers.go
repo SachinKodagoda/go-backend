@@ -13,6 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -86,6 +87,44 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// POST /products endpoint
+func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Parse request body
+	var product models.Product
+	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields (except ID which will be generated)
+	if product.Name == "" || product.CategoryID == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	// Generate a new ObjectID for the product
+	product.ID = primitive.NewObjectID()
+
+	collection := db.GetProductsCollection()
+
+	// Insert the product
+	_, err := collection.InsertOne(ctx, product)
+	if err != nil {
+		http.Error(w, "Error creating product", http.StatusInternalServerError)
+		return
+	}
+
+	// Return the created product with the generated ID
+	w.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(w).Encode(product); err != nil {
+		http.Error(w, "Error encoding response", http.StatusInternalServerError)
+		return
+	}
+}
+
 // GET /products/{id} endpoint
 func GetProductByID(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -97,9 +136,16 @@ func GetProductByID(w http.ResponseWriter, r *http.Request) {
 
 	collection := db.GetProductsCollection()
 
-	// Find product by ID
+	// Try to convert the string ID to ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "Invalid ObjectID format", http.StatusBadRequest)
+		return
+	}
+
+	// Find product by ObjectID using _id field
 	var product models.Product
-	err := collection.FindOne(ctx, bson.M{"id": id}).Decode(&product)
+	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&product)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			http.Error(w, "Product not found", http.StatusNotFound)
@@ -133,17 +179,27 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Ensure IDs match
-	if product.ID != id {
-		http.Error(w, "Product ID in body does not match URL", http.StatusBadRequest)
+	// Try to convert the string ID to ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "Invalid ObjectID format", http.StatusBadRequest)
 		return
 	}
+
+	// Ensure we use the ID from the URL
+	product.ID = objectID
 
 	collection := db.GetProductsCollection()
 
 	// Update product
-	filter := bson.M{"id": id}
-	update := bson.M{"$set": product}
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": bson.M{
+		"name":           product.Name,
+		"category_id":    product.CategoryID,
+		"category_group": product.CategoryGroup,
+		"attributes":     product.Attributes,
+	}}
+
 	result, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		http.Error(w, "Error updating product", http.StatusInternalServerError)
