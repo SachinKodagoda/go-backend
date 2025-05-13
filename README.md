@@ -85,13 +85,11 @@ The server will start on http://localhost:8080 by default (or the port specified
 
 ### 🛒 Products
 
-```markdown
 | Method | Endpoint             | Description       | Query Parameters                         |
 | ------ | -------------------- | ----------------- | ---------------------------------------- |
 | GET    | `/api/products`      | Get all products  | `page`, `page_size`, `category_id`, etc. |
 | GET    | `/api/products/{id}` | Get product by ID | -                                        |
 | PUT    | `/api/products/{id}` | Update product    | -                                        |
-```
 
 - 📄 `page`: Page number (default: 1)
 - 🔢 `page_size`: Items per page (default: 10)
