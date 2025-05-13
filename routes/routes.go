@@ -28,6 +28,10 @@ func RegisterRoutes(router *mux.Router) {
 	api.HandleFunc("/products/{id}", handlers.GetProductByID).Methods("GET", "OPTIONS")
 	api.HandleFunc("/products/{id}", handlers.UpdateProduct).Methods("PUT", "OPTIONS")
 
+	// Users endpoints
+	api.HandleFunc("/users", handlers.GetUsers).Methods("GET", "OPTIONS")
+	api.HandleFunc("/users/{id}", handlers.GetUserByID).Methods("GET", "OPTIONS")
+
 	// Health check
 	api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

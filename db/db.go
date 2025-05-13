@@ -20,6 +20,7 @@ var database *mongo.Database
 type SampleData struct {
 	Categories []models.Category `json:"categories"`
 	Products   []models.Product  `json:"products"`
+	Users      []models.User     `json:"users"`
 }
 
 // Connect establishes a connection to MongoDB
@@ -78,6 +79,11 @@ func GetProductsCollection() *mongo.Collection {
 	return database.Collection("products")
 }
 
+// get the users collection
+func GetUsersCollection() *mongo.Collection {
+	return database.Collection("users")
+}
+
 // InitializeDatabase initializes the database with sample data if collections are empty
 func InitializeDatabase() error {
 	// Create indexes
@@ -100,7 +106,12 @@ func InitializeDatabase() error {
 		return err
 	}
 
-	if categoriesCount > 0 && productsCount > 0 {
+	usersCount, err := GetUsersCollection().CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
+
+	if categoriesCount > 0 && productsCount > 0 && usersCount > 0 {
 		log.Println("Database already initialized")
 		return nil
 	}
@@ -137,6 +148,20 @@ func InitializeDatabase() error {
 			return err
 		}
 		log.Println("Products initialized successfully")
+	}
+
+	// Insert users
+	if usersCount == 0 && len(sampleData.Users) > 0 {
+		var usersInterface []interface{}
+		for _, user := range sampleData.Users {
+			usersInterface = append(usersInterface, user)
+		}
+
+		_, err = GetUsersCollection().InsertMany(ctx, usersInterface)
+		if err != nil {
+			return err
+		}
+		log.Println("Users initialized successfully")
 	}
 
 	return nil
@@ -181,12 +206,47 @@ func createIndexes() error {
 		return err
 	}
 
+	// Create index on users
+	_, err = GetUsersCollection().Indexes().CreateMany(ctx, []mongo.IndexModel{
+		{
+			Keys: bson.D{
+				{Key: "id", Value: 1},
+			},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys: bson.D{
+				{Key: "email", Value: 1},
+			},
+			Options: options.Index().SetUnique(true),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // Load sample data from file
 func loadSampleData() (*SampleData, error) {
 	sampleDataJSON := `{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@gmail.com",
+      "password": "admin123",
+      "name": "Admin User",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "email": "user@gmail.com",
+      "password": "user123",
+      "name": "Regular User",
+      "role": "user"
+    }
+  ],
   "categories": [
     {
       "id": "1",

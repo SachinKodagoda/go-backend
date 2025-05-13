@@ -15,7 +15,8 @@
 │   └── db.go
 ├── handlers/                # API handlers
 │   ├── category_handlers.go
-│   └── product_handlers.go
+│   ├── product_handlers.go
+│   └── user_handlers.go
 ├── middleware/              # Middleware functions
 │   └── middleware.go
 ├── routes/                  # API routes
@@ -97,6 +98,13 @@ The server will start on http://localhost:8080 by default (or the port specified
 - 📊 `_sort`/`sortField`: Field to sort by
 - 🔃 `_order`/`sortOrder`: Sort order (`asc` or `desc`)
 
+### 🛒 Users
+
+| Method | Endpoint          | Description    |
+| ------ | ----------------- | -------------- |
+| GET    | `/api/users`      | Get all users  |
+| GET    | `/api/users/{id}` | Get user by ID |
+
 ### 💓 Health Check
 
 - `GET /api/health` - API health check
@@ -105,6 +113,8 @@ The server will start on http://localhost:8080 by default (or the port specified
 
 ```bash
 curl -X GET http://localhost:8080/api/categories
+curl -X GET http://localhost:8080/api/users
+curl -X GET http://localhost:8080/api/users?email=user@gmail.com&password=user123
 curl -X GET "http://localhost:8080/api/products?page=1&page_size=5"
 curl -X GET "http://localhost:8080/api/products?category_id=2"
 curl -X GET "http://localhost:8080/api/products?_sort=name&_order=asc"

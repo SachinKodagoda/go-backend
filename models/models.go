@@ -45,3 +45,20 @@ type ProductsResponse struct {
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
+
+// User represents a user in the system
+type User struct {
+	ID       string `json:"id" bson:"id"`
+	Email    string `json:"email" bson:"email"`
+	Password string `json:"password" bson:"password"` // In production, store hashed passwords
+	Name     string `json:"name" bson:"name"`
+	Role     string `json:"role" bson:"role"`
+}
+
+// UserResponse represents a user response without sensitive data
+type UserResponse struct {
+	ID    string `json:"id" bson:"id"`
+	Email string `json:"email" bson:"email"`
+	Name  string `json:"name" bson:"name"`
+	Role  string `json:"role" bson:"role"`
+}
