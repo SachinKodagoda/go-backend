@@ -2,8 +2,8 @@
 
 ## 📋 Requirements
 
-- Go 1.18 or higher (1.24.0 is used)
-- MongoDB 4.4 or higher
+- ✅ Go 1.18+ (1.24.0 recommended)
+- 🍃 MongoDB 4.4+
 
 ## 📁 Project Structure
 
@@ -23,16 +23,23 @@
 └── .env                     # Environment variables
 ```
 
+## 🔑 Key Features
+
+- 🔄 RESTful API endpoints for products and categories
+- 📊 Advanced filtering, pagination, and sorting
+- 🔒 Environment-based configuration
+- 🧩 Modular project structure
+
 ## 🛠️ Setup Instructions
 
-1. Clone the repository:
+### 1️⃣ Clone the repository:
 
 ```bash
 git clone https://github.com/SachinKodagoda/go-backend.git
 cd go-backend
 ```
 
-2. Install dependencies: (Following is already included in the `go.mod` file)
+### 2️⃣ Install dependencies: (Following is already included in the `go.mod` file)
 
 ```bash
 go mod init go-backend
@@ -41,7 +48,7 @@ go get go.mongodb.org/mongo-driver/mongo
 go get github.com/joho/godotenv
 ```
 
-3. Create a `.env` file (use the `.env.template` as a guide):
+### 3️⃣ Create a `.env` file (use the `.env.template` as a guide):
 
 ```bash
 cp .env.template .env
@@ -58,9 +65,9 @@ DB_NAME=mydb
 PORT=8080
 ```
 
-4. Make sure MongoDB is running.
+### 4️⃣ Make sure MongoDB is running.
 
-5. Run the application:
+### 5️⃣ Run the application:
 
 ```bash
 go run main.go
@@ -68,26 +75,31 @@ go run main.go
 
 The server will start on http://localhost:8080 by default (or the port specified in the .env file).
 
-## 🔌 API Endpoints
+## 🔌 API Reference
 
 ### 📊 Categories
 
-- `GET /api/categories` - Get all categories
+```markdown
+| Method | Endpoint          | Description        |
+| ------ | ----------------- | ------------------ |
+| GET    | `/api/categories` | Get all categories |
+```
 
 ### 🛒 Products
 
-- `GET /api/products` - Get all products (with pagination, filtering, and sorting)
-  - Query parameters:
-    - `page`: Page number (default: 1)
-    - `page_size`: Number of items per page (default: 10)
-    - `category_id`: Filter by category ID
-    - `category_group`: Filter by category group
-    - `_sort` or `sortField`: Field to sort by
-    - `_order` or `sortOrder`: Sort order (asc or desc)
-    - `_start`: Starting index
-    - `_limit`: Limit number of results
-- `GET /api/products/{id}` - Get a product by ID
-- `PUT /api/products/{id}` - Update a product
+```markdown
+| Method | Endpoint             | Description       | Query Parameters                         |
+| ------ | -------------------- | ----------------- | ---------------------------------------- |
+| GET    | `/api/products`      | Get all products  | `page`, `page_size`, `category_id`, etc. |
+| GET    | `/api/products/{id}` | Get product by ID | -                                        |
+| PUT    | `/api/products/{id}` | Update product    | -                                        |
+```
+
+- 📄 `page`: Page number (default: 1)
+- 🔢 `page_size`: Items per page (default: 10)
+- 🏷️ `category_id`: Filter by category ID
+- 📊 `_sort`/`sortField`: Field to sort by
+- 🔃 `_order`/`sortOrder`: Sort order (`asc` or `desc`)
 
 ### 💓 Health Check
 
@@ -128,16 +140,9 @@ curl -X PUT http://localhost:8080/api/products/1 \
   }'
 ```
 
-## Other Notes :
+## 💻 Development
 
-- The code is written in Go and uses the MongoDB driver for database operations.
-- The API is built using the Gorilla Mux router.
-- The API supports pagination, filtering, and sorting for the products endpoint.
-- The API includes a health check endpoint to verify if the server is running.
-- The code includes error handling for database operations and API requests.
-- The code uses JSON for data interchange between the server and clients.
-- The code includes a middleware function for logging requests and responses.
-- To build
+### Building the Application
 
 ```bash
 go build -o go-backend main.go
