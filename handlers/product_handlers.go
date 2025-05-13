@@ -1,4 +1,3 @@
-// handlers/product_handlers.go
 package handlers
 
 import (
@@ -18,7 +17,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// GetProducts handles the GET /products endpoint with pagination and filtering
+// GET /products endpoint with pagination and filtering
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -42,7 +41,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	if params.SortField != "" {
 		sortValue := 1 // asc
 		if params.SortOrder == "desc" {
-			sortValue = -1
+			sortValue = -1 // desc
 		}
 		findOptions.SetSort(bson.D{{Key: params.SortField, Value: sortValue}})
 	}
@@ -87,7 +86,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetProductByID handles the GET /products/{id} endpoint
+// GET /products/{id} endpoint
 func GetProductByID(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -118,7 +117,7 @@ func GetProductByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// UpdateProduct handles the PUT /products/{id} endpoint
+// PUT /products/{id} endpoint
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

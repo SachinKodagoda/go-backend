@@ -1,4 +1,3 @@
-// handlers/category_handlers.go
 package handlers
 
 import (
@@ -13,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// GetCategories handles the GET /categories endpoint
+// GET /categories endpoint
 func GetCategories(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -43,8 +42,7 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetCategoryByID handles the GET /categories/{id} endpoint
+// GET /categories/{id} endpoint
 func GetCategoryByID(w http.ResponseWriter, r *http.Request) {
-	// This is an additional function not specified in the requirements
-	// but might be useful for the front-end
+	// Neet to implement this
 }

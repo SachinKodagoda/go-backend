@@ -17,7 +17,6 @@ import (
 var client *mongo.Client
 var database *mongo.Database
 
-// Sample data structure that matches the sample data
 type SampleData struct {
 	Categories []models.Category `json:"categories"`
 	Products   []models.Product  `json:"products"`
@@ -69,12 +68,12 @@ func Disconnect() {
 	}
 }
 
-// GetCategoriesCollection returns the categories collection
+// get the categories collection
 func GetCategoriesCollection() *mongo.Collection {
 	return database.Collection("categories")
 }
 
-// GetProductsCollection returns the products collection
+// get the products collection
 func GetProductsCollection() *mongo.Collection {
 	return database.Collection("products")
 }
@@ -187,10 +186,6 @@ func createIndexes() error {
 
 // Load sample data from file
 func loadSampleData() (*SampleData, error) {
-	// Convert your pasted JSON data to a format that can be loaded here
-	// For simplicity, we'll just hardcode the sample data
-
-	// Convert the paste.txt content into proper format
 	sampleDataJSON := `{
   "categories": [
     {

@@ -1,11 +1,11 @@
-# Go MongoDB API Backend
+# 🚀 Go MongoDB API Backend
 
-## Requirements
+## 📋 Requirements
 
-- Go 1.18 or higher
+- Go 1.18 or higher (1.24.0 is used)
 - MongoDB 4.4 or higher
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ├── main.go                  # Entry point
@@ -23,16 +23,16 @@
 └── .env                     # Environment variables
 ```
 
-## Setup Instructions
+## 🛠️ Setup Instructions
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/go-backend.git
+git clone https://github.com/SachinKodagoda/go-backend.git
 cd go-backend
 ```
 
-2. Install dependencies:
+2. Install dependencies: (Following is already included in the `go.mod` file)
 
 ```bash
 go mod init go-backend
@@ -47,7 +47,18 @@ go get github.com/joho/godotenv
 cp .env.template .env
 ```
 
-4. Make sure MongoDB is running
+Following is an example of the `.env` file:
+
+```bash
+# MongoDB connection string
+MONGODB_URI=mongodb+srv://duminda:test123@cluster0.gnfih.mongodb.net
+# Database name
+DB_NAME=mydb
+# Server port
+PORT=8080
+```
+
+4. Make sure MongoDB is running.
 
 5. Run the application:
 
@@ -57,13 +68,13 @@ go run main.go
 
 The server will start on http://localhost:8080 by default (or the port specified in the .env file).
 
-## API Endpoints
+## 🔌 API Endpoints
 
-### Categories
+### 📊 Categories
 
 - `GET /api/categories` - Get all categories
 
-### Products
+### 🛒 Products
 
 - `GET /api/products` - Get all products (with pagination, filtering, and sorting)
   - Query parameters:
@@ -78,45 +89,18 @@ The server will start on http://localhost:8080 by default (or the port specified
 - `GET /api/products/{id}` - Get a product by ID
 - `PUT /api/products/{id}` - Update a product
 
-### Health Check
+### 💓 Health Check
 
 - `GET /api/health` - API health check
 
-## Example API Calls
-
-### Get All Categories
+## 🔍 Example API Calls
 
 ```bash
 curl -X GET http://localhost:8080/api/categories
-```
-
-### Get Products with Pagination
-
-```bash
 curl -X GET "http://localhost:8080/api/products?page=1&page_size=5"
-```
-
-### Get Products by Category
-
-```bash
 curl -X GET "http://localhost:8080/api/products?category_id=2"
-```
-
-### Get Products Sorted by Name
-
-```bash
 curl -X GET "http://localhost:8080/api/products?_sort=name&_order=asc"
-```
-
-### Get a Product by ID
-
-```bash
 curl -X GET http://localhost:8080/api/products/1
-```
-
-### Update a Product
-
-```bash
 curl -X PUT http://localhost:8080/api/products/1 \
   -H "Content-Type: application/json" \
   -d '{
@@ -142,4 +126,25 @@ curl -X PUT http://localhost:8080/api/products/1 \
       }
     ]
   }'
+```
+
+## Other Notes :
+
+- The code is written in Go and uses the MongoDB driver for database operations.
+- The API is built using the Gorilla Mux router.
+- The API supports pagination, filtering, and sorting for the products endpoint.
+- The API includes a health check endpoint to verify if the server is running.
+- The code includes error handling for database operations and API requests.
+- The code uses JSON for data interchange between the server and clients.
+- The code includes a middleware function for logging requests and responses.
+- To build
+
+```bash
+go build -o go-backend main.go
+```
+
+- This is deployed in Render.com and the URL is
+
+```bash
+https://go-backend-s2eg.onrender.com/api/health
 ```
