@@ -52,6 +52,15 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		}
 
 		findOptions.SetSort(bson.D{{Key: sortFieldName, Value: sortValue}})
+
+		// Add case-insensitive collation for string fields
+		if params.SortField != "id" && params.SortField != "_id" {
+			// Use simple collation with case-insensitive comparison
+			findOptions.SetCollation(&options.Collation{
+				Locale:   "en",
+				Strength: 2, // 2 = case-insensitive
+			})
+		}
 	}
 
 	// First get total count
