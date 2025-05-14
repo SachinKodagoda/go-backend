@@ -44,7 +44,14 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		if params.SortOrder == "desc" {
 			sortValue = -1 // desc
 		}
-		findOptions.SetSort(bson.D{{Key: params.SortField, Value: sortValue}})
+
+		// Map API field names to MongoDB field names
+		sortFieldName := params.SortField
+		if params.SortField == "id" {
+			sortFieldName = "_id"
+		}
+
+		findOptions.SetSort(bson.D{{Key: sortFieldName, Value: sortValue}})
 	}
 
 	// First get total count
