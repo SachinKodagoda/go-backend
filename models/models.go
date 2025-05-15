@@ -14,6 +14,7 @@ type Attribute struct {
 	Code  string      `json:"code" bson:"code"`
 	Value interface{} `json:"value" bson:"value"`
 	Type  string      `json:"type" bson:"type"`
+	Label string      `json:"label" bson:"label"` // Human-readable label for the attribute
 }
 
 // Product represents a product
