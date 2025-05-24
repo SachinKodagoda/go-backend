@@ -18,6 +18,98 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// isAttributeCode checks if the given field is actually an attribute code
+func isAttributeCode(field string, collection *mongo.Collection, ctx context.Context) bool {
+	// This is a simplified check - in production, We might want to maintain a list of
+	// valid attribute codes or check against a separate attributes collection
+	topLevelFields := []string{"_id", "name", "category_id", "category_group", "attributes"}
+	for _, f := range topLevelFields {
+		if field == f {
+			return false
+		}
+	}
+	return true
+}
+
+// buildAttributeSortPipeline builds a MongoDB aggregation pipeline to sort by attribute code
+func buildAttributeSortPipeline(filter bson.M, params models.PaginationParams) mongo.Pipeline {
+	sortDir := 1
+	if params.SortOrder == "desc" {
+		sortDir = -1
+	}
+
+	attrCode := params.SortField
+
+	pipeline := mongo.Pipeline{
+		// Stage 1: Match documents based on filter
+		{{Key: "$match", Value: filter}},
+
+		// Stage 2: Add a field with the value of the attribute we want to sort by
+		{{Key: "$addFields", Value: bson.M{
+			"sortField": bson.M{
+				"$let": bson.M{
+					"vars": bson.M{
+						"matchedAttr": bson.M{
+							"$arrayElemAt": []interface{}{
+								bson.M{
+									"$filter": bson.M{
+										"input": "$attributes",
+										"as":    "attr",
+										"cond": bson.M{
+											"$eq": []string{"$$attr.code", attrCode},
+										},
+									},
+								},
+								0,
+							},
+						},
+					},
+					"in": "$$matchedAttr.value",
+				},
+			},
+			// Add a lowercase version of the sort field for string values
+			"sortFieldLower": bson.M{
+				"$let": bson.M{
+					"vars": bson.M{
+						"matchedAttr": bson.M{
+							"$arrayElemAt": []interface{}{
+								bson.M{
+									"$filter": bson.M{
+										"input": "$attributes",
+										"as":    "attr",
+										"cond": bson.M{
+											"$eq": []string{"$$attr.code", attrCode},
+										},
+									},
+								},
+								0,
+							},
+						},
+					},
+					"in": bson.M{
+						"$cond": bson.M{
+							"if":   bson.M{"$eq": []interface{}{bson.M{"$type": "$$matchedAttr.value"}, "string"}},
+							"then": bson.M{"$toLower": "$$matchedAttr.value"},
+							"else": "$$matchedAttr.value",
+						},
+					},
+				},
+			},
+		}}},
+
+		// Stage 3: Sort by the extracted attribute value (case insensitive for strings)
+		{{Key: "$sort", Value: bson.M{
+			"sortFieldLower": sortDir,
+		}}},
+
+		// Stage 4: Apply pagination
+		{{Key: "$skip", Value: params.Start}},
+		{{Key: "$limit", Value: params.Limit}},
+	}
+
+	return pipeline
+}
+
 // GET /products endpoint with pagination and filtering
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -37,12 +129,67 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		filter["category_group"] = params.CategoryGroup
 	}
 
-	// Build options for sorting and pagination
+	// Get total count (same for both approaches)
+	total, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		http.Error(w, "Error counting products", http.StatusInternalServerError)
+		return
+	}
+
+	var products []models.Product
+
+	// Check if we need to sort by attribute
+	if params.SortField != "" && isAttributeCode(params.SortField, collection, ctx) {
+		// Use aggregation pipeline for attribute-based sorting
+		pipeline := buildAttributeSortPipeline(filter, params)
+		cursor, err := collection.Aggregate(ctx, pipeline)
+		if err != nil {
+			http.Error(w, "Error fetching products", http.StatusInternalServerError)
+			return
+		}
+		defer cursor.Close(ctx)
+
+		if err = cursor.All(ctx, &products); err != nil {
+			http.Error(w, "Error parsing products", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// Use regular Find with options for standard sorting
+		findOptions := buildFindOptions(params)
+
+		cursor, err := collection.Find(ctx, filter, findOptions)
+		if err != nil {
+			http.Error(w, "Error fetching products", http.StatusInternalServerError)
+			return
+		}
+		defer cursor.Close(ctx)
+
+		if err = cursor.All(ctx, &products); err != nil {
+			http.Error(w, "Error parsing products", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// Build and return response
+	respondWithJSON(w, models.ProductsResponse{
+		Products: products,
+		Total:    total,
+	})
+}
+
+// Helper function to build find options for standard queries
+func buildFindOptions(params models.PaginationParams) *options.FindOptions {
 	findOptions := options.Find()
+
+	// Apply pagination
+	findOptions.SetSkip(int64(params.Start))
+	findOptions.SetLimit(int64(params.Limit))
+
+	// Apply sorting if specified
 	if params.SortField != "" {
 		sortValue := 1 // asc
 		if params.SortOrder == "desc" {
-			sortValue = -1 // desc
+			sortValue = -1
 		}
 
 		// Map API field names to MongoDB field names
@@ -55,7 +202,6 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 
 		// Add case-insensitive collation for string fields
 		if params.SortField != "id" && params.SortField != "_id" {
-			// Use simple collation with case-insensitive comparison
 			findOptions.SetCollation(&options.Collation{
 				Locale:   "en",
 				Strength: 2, // 2 = case-insensitive
@@ -63,43 +209,14 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// First get total count
-	total, err := collection.CountDocuments(ctx, filter)
-	if err != nil {
-		http.Error(w, "Error counting products", http.StatusInternalServerError)
-		return
-	}
+	return findOptions
+}
 
-	// Apply pagination
-	findOptions.SetSkip(int64(params.Start))
-	findOptions.SetLimit(int64(params.Limit))
-
-	// Execute query
-	cursor, err := collection.Find(ctx, filter, findOptions)
-	if err != nil {
-		http.Error(w, "Error fetching products", http.StatusInternalServerError)
-		return
-	}
-	defer cursor.Close(ctx)
-
-	// Parse results
-	var products []models.Product
-	if err = cursor.All(ctx, &products); err != nil {
-		http.Error(w, "Error parsing products", http.StatusInternalServerError)
-		return
-	}
-
-	// Build response
-	response := models.ProductsResponse{
-		Products: products,
-		Total:    total,
-	}
-
-	// Return products as JSON
+// Helper function to send JSON response
+func respondWithJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, "Error encoding response", http.StatusInternalServerError)
-		return
 	}
 }
 
